@@ -82,7 +82,29 @@ func Get(key string) (map[string]string, error) {
 		return res, nil
 	}
 	return map[string]string{}, nil
+}
 
+// get with prefix
+func GetWithPrefix(key string) (map[string]string, error) {
+	cli, err := GetClient()
+	if err != nil {
+		return nil, err
+	}
+	defer cli.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	resp, err := cli.Get(ctx, key, clientv3.WithPrefix())
+	cancel() // todo explain cancel
+	if err != nil {
+		return nil, err
+	}
+	if resp != nil && resp.Count > 0 {
+		res := make(map[string]string)
+		for _, kv := range resp.Kvs {
+			res[string(kv.Key)] = string(kv.Value)
+		}
+		return res, nil
+	}
+	return map[string]string{}, nil
 }
 
 // put

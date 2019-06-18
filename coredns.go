@@ -32,3 +32,24 @@ func AddDnsRecord(domain string, ip string) error {
 	key := fmt.Sprintf("%s/%v", prefix, strings.Join(domainSubs, "/"))
 	return Put(key, string(jsonData))
 }
+
+// 获取dns记录
+func GetDnsRecord(domain string) string {
+	domainSubs := strings.Split(domain, ".")
+	for i, j := 0, len(domainSubs)-1; i < j; i, j = i+1, j-1 {
+		domainSubs[i], domainSubs[j] = domainSubs[j], domainSubs[i]
+	}
+
+	key := fmt.Sprintf("%s/%v", prefix, strings.Join(domainSubs, "/"))
+	res, err := Get(key)
+	if err != nil || len(res) <= 0 {
+		domainSubs[len(domainSubs)-1] = "*"
+		key = fmt.Sprintf("%s/%v", prefix, strings.Join(domainSubs, "/"))
+		res, err := Get(key)
+		if err != nil || len(res) <= 0 {
+			return ""
+		}
+		return res["host"]
+	}
+	return res["host"]
+}
