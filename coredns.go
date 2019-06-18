@@ -53,3 +53,11 @@ func GetDnsRecord(domain string) string {
 	}
 	return res["host"]
 }
+
+// 获取所有dns记录
+func GetAllDnsRecord() map[string]string {
+	res, err := GetWithPrefix(prefix)
+	println(err)
+	println(res)
+	return nil
+}
