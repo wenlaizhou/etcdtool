@@ -56,8 +56,21 @@ func GetDnsRecord(domain string) string {
 
 // 获取所有dns记录
 func GetAllDnsRecord() map[string]string {
+	result := map[string]string{}
 	res, err := GetWithPrefix(prefix)
-	println(err)
-	println(res)
-	return nil
+	if err != nil {
+		EtcdLogger.Error(err.Error())
+		return result
+	}
+	for k, v := range res {
+		v = strings.TrimSpace(v)
+		hostData := CoreDnsHost{}
+		json.Unmarshal([]byte(v), &hostData)
+		domainSubs := strings.Split(strings.Replace(k, fmt.Sprintf("%s/", prefix), "", -1), "/")
+		for i, j := 0, len(domainSubs)-1; i < j; i, j = i+1, j-1 {
+			domainSubs[i], domainSubs[j] = domainSubs[j], domainSubs[i]
+		}
+		result[strings.Join(domainSubs, ".")] = v
+	}
+	return result
 }
