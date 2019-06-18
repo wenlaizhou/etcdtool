@@ -70,7 +70,7 @@ func GetAllDnsRecord() map[string]string {
 		for i, j := 0, len(domainSubs)-1; i < j; i, j = i+1, j-1 {
 			domainSubs[i], domainSubs[j] = domainSubs[j], domainSubs[i]
 		}
-		result[strings.Join(domainSubs, ".")] = v
+		result[strings.Join(domainSubs, ".")] = hostData.Host
 	}
 	return result
 }
