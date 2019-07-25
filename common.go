@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"github.com/wenlaizhou/middleware"
 	"go.etcd.io/etcd/clientv3"
 	"io/ioutil"
@@ -24,7 +25,15 @@ func GetEndpoints() string {
 
 // 初始化配置
 func InitConf(eps []string, timeOut int, keyPath string, caPath string, rootCaPath string) error {
-	endpoints = eps
+	if len(eps) <= 0 {
+		return errors.New("etcd配置错误, endpoints地址为空")
+	}
+	for _, endpoint := range eps {
+		endpoint = strings.TrimSpace(endpoint)
+		if len(endpoint) > 0 {
+			endpoints = append(endpoints, endpoint)
+		}
+	}
 	timeout = time.Duration(timeOut) * time.Second
 
 	if middleware.HasEmptyString(keyPath, caPath, rootCaPath) {
