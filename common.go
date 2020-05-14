@@ -127,6 +127,20 @@ func Put(key string, value string) error {
 	return err
 }
 
+func PutIfAbsent(key string, value string) (bool, error) {
+	cli, err := GetClient()
+	if err != nil {
+		return false, err
+	}
+	defer cli.Close()
+	cmp := clientv3.Compare(clientv3.CreateRevision(key), "=", 0)
+	resp, err := cli.Txn(context.TODO()).If(cmp).Then(clientv3.OpPut(key, value)).Commit()
+	if resp == nil {
+		return false, err
+	}
+	return resp.Succeeded, err
+}
+
 // delete
 func Delete(key string) error {
 	cli, err := GetClient()
